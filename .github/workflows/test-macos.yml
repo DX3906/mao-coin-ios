@@ -1,0 +1,7 @@
+name: test-macos
+on: workflow_dispatch
+jbs:
+  test:
+    runs-on: macos-14
+    steps:
+      - run: echo ok
