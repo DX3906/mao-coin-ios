@@ -1,0 +1,36 @@
+name: CoinFlip
+options:
+  bundleIdPrefix: com.yourname
+  deploymentTarget:
+    iOS: "16.0"
+targets:
+  CoinFlip:
+    type: application
+    platform: iOS
+    sources:
+      - CoinFlip
+    dependencies:
+      - target: CoinFlipWidget
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.coinflip
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: 毛二壮毛妹妹硬币
+  CoinFlipWidget:
+    type: appExtension
+    platform: iOS
+    deploymentTarget: "17.0"   # 交互式小组件需要 iOS 17
+    sources:
+      - CoinFlipWidget
+      - CoinFlip/Assets.xcassets
+    info:
+      path: CoinFlipWidget/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.yourname.coinflip.widget
+        TARGETED_DEVICE_FAMILY: "1,2"
