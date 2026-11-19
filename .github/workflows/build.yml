@@ -1,0 +1,48 @@
+name: build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen
+
+      - name: Build for iOS Simulator (compile check, no signing needed)
+        run: |
+          xcodebuild build \
+            -project CoinFlip.xcodeproj \
+            -scheme CoinFlip \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            CODE_SIGNING_ALLOWED=NO
+
+      # 免签名真机归档：AltStore 安装时会用你自己的免费 Apple ID 重新签名
+      - name: Archive unsigned build for device
+        run: |
+          xcodebuild archive \
+            -project CoinFlip.xcodeproj \
+            -scheme CoinFlip \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/CoinFlip.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
+
+      - name: Package unsigned IPA
+        run: |
+          mkdir -p build/Payload
+          cp -R "build/CoinFlip.xcarchive/Products/Applications/CoinFlip.app" build/Payload/
+          cd build && zip -qr CoinFlip-unsigned.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: CoinFlip-unsigned-ipa
+          path: build/CoinFlip-unsigned.ipa
